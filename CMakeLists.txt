@@ -22,6 +22,10 @@ set(MBEDISO_SRC
     src/public/fs.c
 )
 
+if(NOT ANDROID AND NOT IOS AND NOT PLATFORM_IOS AND NOT CMAKE_SYSTEM_NAME STREQUAL "iOS" AND NOT NINTENDO_WII AND NOT NINTENDO_WIIU AND NOT NINTENDO_DS AND NOT NINTENDO_3DS AND NOT VITA AND NOT PSP AND NOT PS2 AND NOT EMSCRIPTEN)
+    option(MBEDISO_BUILD_EXECUTABLES "Build executables included with the project" ON)
+endif()
+
 option(USE_EXTERNAL_LZ4 "Use externally provided LZ4" OFF)
 
 set(MBEDISO_THREADS_DEFAULT "NONE")
@@ -90,11 +94,11 @@ if(NOT MSVC)
     target_compile_options(mbediso PRIVATE -Wall -Wextra -pedantic)
 endif()
 
-
-# example utility to allow user to read from an ISO
-add_executable(read examples/main.c)
-target_link_libraries(read PRIVATE mbediso)
-
+if(MBEDISO_BUILD_EXECUTABLES)
+    # example utility to allow user to read from an ISO
+    add_executable(read examples/main.c)
+    target_link_libraries(read PRIVATE mbediso)
+endif()
 
 # lz4 pack command line util
 project(lz4_pack VERSION 0.0 LANGUAGES CXX)
@@ -104,12 +108,21 @@ target_include_directories(lz4_pack_static PUBLIC util/lz4_pack/include)
 set_target_properties(lz4_pack_static PROPERTIES PUBLIC_HEADER "util/lz4_pack/include/lz4_pack.h")
 target_link_libraries(lz4_pack_static PUBLIC lz4_static)
 
-add_executable(lz4_pack_cli util/lz4_pack/main.cpp)
-target_link_libraries(lz4_pack_cli PRIVATE lz4_pack_static)
+if(MBEDISO_BUILD_EXECUTABLES)
+    add_executable(lz4_pack_cli util/lz4_pack/main.cpp)
+    target_link_libraries(lz4_pack_cli PRIVATE lz4_pack_static)
 
-install(TARGETS lz4_pack_static lz4_pack_cli
-	RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
-	LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-	ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-	PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+    install(TARGETS lz4_pack_cli
+        RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+        LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+        ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+        PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+    )
+endif()
+
+install(TARGETS lz4_pack_static
+    RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+    LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+    ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+    PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
 )
