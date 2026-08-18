@@ -117,7 +117,7 @@ endif()
 # lz4 pack command line util
 project(lz4_pack VERSION 0.0 LANGUAGES CXX)
 
-add_library(lz4_pack_static util/lz4_pack/lz4_pack.cpp)
+add_library(lz4_pack_static STATIC util/lz4_pack/lz4_pack.cpp)
 target_include_directories(lz4_pack_static PUBLIC util/lz4_pack/include)
 set_target_properties(lz4_pack_static PROPERTIES PUBLIC_HEADER "util/lz4_pack/include/lz4_pack.h")
 target_link_libraries(lz4_pack_static PUBLIC lz4_static)
